@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, map, tap, delay } from 'rxjs/operators';
 
 import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
@@ -38,7 +38,7 @@ export class PlacesService {
       'p3',
       'San Pietroburgo',
       'Fondata nel 1703 da Pietro il Grande',
-      'https://lh3.googleusercontent.com/proxy/D4ctQUlBFVdIbhJ3QfgHkNGEwR-iepL50Wi4gHQc1MCax-6bknlX_jpTNCldxePhqmcxiLA-NC-81DvrTV6FX8uSAUR-uG34cNFCVLxvvGVv16PM2nm4KzVT9k0',
+      'https://genovacultura.org/wp-content/uploads/2015/12/sanpietroburgo-600x321.jpg',
       1.23,
       new Date('2020-01-01'),
       new Date('2020-12-31'),
@@ -49,7 +49,7 @@ export class PlacesService {
       'p4',
       'Sidney',
       'Nell altro emisfero ',
-      'https://lh3.googleusercontent.com/proxy/qAkuIcGfEbp-QbGaie8mkB1sh1hN3gtckh_9hlt2M0tR1C5UJkyxq_0nuG2jxEUa8tmUBsFG9zmjHxzn1Yka0XfxQoq0L4v1Ncn3b8k1nUbnJayn9JBlWD0',
+      'https://www.gelestatic.it/thimg/JK5iXUmfE1GcgUdBcL38G6UTpzw=/960x540/smart/https%3A//www.lanuovasardegna.it/image/contentid/policy%3A1.38253563%3A1577212528/sidney19573552.jpg%3Ff%3Ddetail_558%26h%3D720%26w%3D1280%26%24p%24f%24h%24w%3D6f87f59',
       666,
       new Date('2020-01-01'),
       new Date('2020-12-31'),
@@ -64,27 +64,66 @@ export class PlacesService {
   }
 
   getPlace(id: string){
-    return {...this._places.find(p=> p.id === id)};
+    return this.places.pipe(
+      take(1),
+      map( places => {
+        return {...places.find(p=> p.id === id)};
+      })
+    )
+    
   }
 
-  addPlaces(title: string,
+  addPlace(title: string,
     description: string, 
     price: number, 
     availableFrom: Date, 
     availableTo: Date
     ){
-    console.log('questo è quello che arriva a addPlaces()' + title, description, price, availableFrom, availableTo);
-    const newPlace = new Place(
-      Math.random().toString(), 
-      title, 
-      description, 
-      'https://lh3.googleusercontent.com/proxy/qAkuIcGfEbp-QbGaie8mkB1sh1hN3gtckh_9hlt2M0tR1C5UJkyxq_0nuG2jxEUa8tmUBsFG9zmjHxzn1Yka0XfxQoq0L4v1Ncn3b8k1nUbnJayn9JBlWD0',
-      price,
-      availableFrom,
-      availableTo,
-      this.authService.userId
-    );
-    //devo passare i dati all'observable
+      const newPlace = new Place(
+        Math.random().toString(), 
+        title, 
+        description, 
+        'https://genovacultura.org/wp-content/uploads/2015/12/sanpietroburgo-600x321.jpg',
+        price,
+        availableFrom,
+        availableTo,
+        this.authService.userId
+      );
+      // ritorno un observable in new offer per gestire la chiusura di loadingCtrl
+      return this.places.pipe(
+        take(1), 
+        delay(1000), //ritardo per creare effetto caricamento
+        tap( places => {
+          this._places.next(places.concat(newPlace));
+        })//utilizzo tap per far ritornare ad addPlace l'observable places, in questo modo posso utilizzare subscribe in new-offer.page.ts
+      );
+    }
+
+  updatePlace(
+    placeId: string,
+    title: string,
+    description: string
+  ){
+    return this.places
+    .pipe(
+      take(1),
+      delay(1000),
+      tap(places => {
+        const updatedPlaceIndex = places.findIndex( pl => pl.id === placeId);
+        const updatePlaces = [...places];
+        const oldPlace = updatePlaces[updatedPlaceIndex];
+        updatePlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableFrom,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+        this._places.next(updatePlaces);
+    }));
     
   }
 
