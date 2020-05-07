@@ -20,7 +20,7 @@ export class PlacesService {
       100,
       new Date('2020-01-01'),
       new Date('2020-12-31'),
-      'utente'
+      'utente1'
       ),
     new Place 
     (
@@ -31,7 +31,7 @@ export class PlacesService {
       0.50,
       new Date('2020-01-01'),
       new Date('2020-12-31'),
-      'utente'
+      'utente2'
     ),
     new Place 
     (
@@ -42,7 +42,7 @@ export class PlacesService {
       1.23,
       new Date('2020-01-01'),
       new Date('2020-12-31'),
-      'utente'
+      'utente3'
     ),
     new Place
     (
@@ -53,7 +53,7 @@ export class PlacesService {
       666,
       new Date('2020-01-01'),
       new Date('2020-12-31'),
-      'utente'
+      'utente4'
     ) 
   ]);
 
