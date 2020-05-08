@@ -18,8 +18,8 @@ import { AuthService } from 'src/app/auth/auth.service';
 export class PlaceDetailPage implements OnInit, OnDestroy {
 
   place: Place;
-  private placeSub: Subscription;
   isBookable = false;
+  private placeSub: Subscription;
 
   constructor(
     private navCtrl: NavController, 
@@ -32,7 +32,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private authService: AuthService
     ) { }
 
-  ngOnInit() {
+  /*ngOnInit() {
     this.route.paramMap.subscribe(paramMap =>{
       if(!paramMap.has('placeId')) {
         this.navCtrl.navigateBack('/places/tabs/discover');
@@ -44,12 +44,28 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
             this.place = place;
             this.isBookable = place.userId !== this.authService.userId;
       });
-    })
+    });
+  }*/
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(paramMap => {
+      if (!paramMap.has('placeId')) {
+        this.navCtrl.navigateBack('/places/tabs/discover');
+        return;
+      }
+      this.placeSub = this.placesService
+        .getPlace(paramMap.get('placeId'))
+        .subscribe(place => {
+          console.log(place); //capire perchè non inserisce in this.place quello che riceve da place
+          this.place = place;
+          this.isBookable = place.userId !== this.authService.userId;
+        });
+    });
+    
   }
 
   onBookPlace(){
     //this.navCtrl.navigateBack('/places/tabs/discover');
-    console.log('sono dentro onBookPlace()');
     this.actionSheetCtrl.create({
       header: 'Scegli cosa fare',
       buttons:

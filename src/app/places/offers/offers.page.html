@@ -16,7 +16,22 @@
 <ion-content>
   <ion-grid>
     <ion-row>
-      <ion-col>
+      <ion-col size-sm="8" offset-sm="2" *ngIf="isLoading">
+        <div class="ion-text-center">
+          <ion-spinner color="primary"></ion-spinner>
+        </div>
+      </ion-col>
+      <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center" *ngIf="loadedOffers.length <= 0">
+        <div>
+          <p> Non ci sono tue proposte al momento </p>
+          <ion-button  
+            color="secondary" 
+            [routerLink]="['/', 'places', 'tabs', 'offers', 'new']"
+            > Aggiungi Proposta
+          </ion-button>
+        </div>
+      </ion-col>
+      <ion-col size-sm="8" offset-sm="2" *ngIf="!isLoading && loadedOffers.length >= 0">
         <ion-list>
           <ion-item-sliding *ngFor="let offer of loadedOffers" #slidingItem> 
             <app-offer-item [offer]="offer"></app-offer-item>
